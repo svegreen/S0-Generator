@@ -26,6 +26,28 @@ Die Ausgabe ist ganz interessant um das Skript besser zu verstehen. Jetzt sollte
 
 ### Dauerhaft einrichten
 Wenn beim manuellen Start alles geklappt hat, sollte man das Skript ebenfalls als Dämon einrichten, der automatisch mitgestartet wird. Dazu habe ich diese [Anleitung](https://raspberrypi.stackexchange.com/questions/108694/how-to-start-a-python-script-at-boot) verwendet.
+```
+sudo systemctl --force --full edit S0-Generator.service
+```
+Ergänzt habe ich die Angabe des Users, unter dem das Skript laufen soll und das -u Flag, damit die print-Ausgaben auch sofort im Protokoll des Service angezeigt werden (unbuffered):
+```
+[Unit]
+Description=Script to poll Senec PV-power and generate S0-pulses for iDM heat pump
+After=multi-user.target
+
+[Service]
+User=pi
+ExecStart=python3 -u /home/pi/S0-Generator.py
+
+[Install]
+WantedBy=multi-user.target
+```
+```
+sudo systemctl enable --now S0-Generator.service
+```
+```
+systemctl status S0-Generator.service
+```
 
 ## Hardware
 Die Pulse kommen aktuell auf PIN 17 raus. Dort habe ich einen Optokoppler angeschlossen,über den die Wärmepumpe galvanisch getrennt angebunden ist.
